@@ -6,7 +6,6 @@ from redis import Redis
 file_path =  '../bliss-conf/tango/Pool_demo1.yml'
 file = open(file_path, 'r')
 file_yaml = yaml.safe_load(file)
-file = open(file_path, 'w')
 
 # Redis startup
 db = Redis(unix_socket_path='/tmp/redis.sock')
@@ -14,6 +13,7 @@ db = Redis(unix_socket_path='/tmp/redis.sock')
 def run_yaml():
   file_yaml['device'][1]['properties']['test_val'] = 12345
   file_str = yaml.dump(file_yaml)
+  file = open(file_path, 'w')
   file.write(file_str)
   return None
 
