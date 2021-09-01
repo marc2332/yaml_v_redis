@@ -2,7 +2,7 @@ from timeit import timeit
 import yaml
 from redis import Redis
 from ruamel.yaml import YAML
-
+import tango
 
 file_path = "../bliss-conf/tango/Pool_demo1.yml"
 
@@ -18,6 +18,9 @@ file_yaml = yaml.load(file, Loader=yaml.CLoader)
 # Redis startup
 db = Redis(unix_socket_path='/tmp/redis.sock')
 
+# Tango startup
+tango_db = tango.Database()
+
 # General
 file = open(file_path, 'w')
 
@@ -29,7 +32,7 @@ def run_ruamel():
 
 def run_yaml():
   file_yaml['device'][1]['properties']['test_val'] = 12345
-  file_str = yaml.dump(file_yaml, Dumper=yaml.Dumper)
+  file_str = yaml.dump(file_yaml, Dumper=yaml.CDumper)
   file.seek(0)
   file.write(file_str)
   file.truncate()
@@ -38,6 +41,14 @@ def run_redis():
   db.hset('tango.motor.motctrl01.1', 'Velocity', 12345)
   pass
 
-print("Ruamel = ", timeit(stmt=run_ruamel, number = 500))
-print("PYYAML = ", timeit(stmt=run_yaml, number = 500))
-print("Redis = ", timeit(stmt=run_redis, number = 500))
+
+def run_tango():
+  prop = {"magic_val": 123456789 }
+  tango_db.put_device_property("Pool/demo1/1", prop)
+  pass
+
+
+#print("Ruamel = ", timeit(stmt=run_ruamel, number = 500))
+print("PYYAML = ", timeit(stmt=run_yaml, number = 1))
+print("Redis = ", timeit(stmt=run_redis, number = 1))
+print("tango =", timeit(stmt=run_tango, number = 1))
