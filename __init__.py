@@ -3,7 +3,8 @@ import yaml
 from redis import Redis
 from ruamel.yaml import YAML
 import tango
-
+import pdb
+import traceback
 file_path = "../bliss-conf/tango/Sardana_test.yml"
 
 # Ruamel startup
@@ -11,7 +12,7 @@ ruamel_yaml = YAML()
 file = open(file_path, 'r')
 file_ruamel = ruamel_yaml.load(file)
 
-# YAML startup 
+# YAML startup
 file = open(file_path, 'r')
 file_yaml = yaml.load(file, Loader=yaml.CLoader)
 
@@ -54,8 +55,20 @@ def run_tango_bliss():
   bliss_db.put_device_property("Pool/test/1", prop)
   pass
 
-#print("Ruamel = ", timeit(stmt=run_ruamel, number = 500))
+def run_tango_bliss_create_device():
+  # WIP
+  dev_info =  tango.DbDevInfo()
+  dev_info.name = "Motor/motctrl02/150"
+  dev_info._class = "DummyMotorController"
+  dev_info.server =  "sardana/test"
+  bliss_db.add_device(dev_info)  
+  pass
+
+
+print("Ruamel = ", timeit(stmt=run_ruamel, number = 100) / 100)
+print("create device + bliss", timeit(stmt=run_tango_bliss_create_device, number = 1))
 print("PYYAML = ", timeit(stmt=run_yaml, number = 100) / 100)
 print("Redis = ", timeit(stmt=run_redis, number = 100) / 100)
 print("tango+sql =", timeit(stmt=run_tango_sql, number = 100) / 100)
 print("tango+bliss =", timeit(stmt=run_tango_bliss, number = 100) / 100)
+
